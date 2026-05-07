@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visió artificial aplicada a la robòtica</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(255,255,255,.08);
+      --panel-strong: rgba(255,255,255,.14);
+      --text: #f7fbff;
+      --muted: #bfd0df;
+      --accent: #55d6ff;
+      --accent2: #83ffbd;
+      --warning: #ffd166;
+      --shadow: 0 24px 70px rgba(0,0,0,.35);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(85,214,255,.22), transparent 32rem),
+        radial-gradient(circle at 80% 10%, rgba(131,255,189,.15), transparent 28rem),
+        linear-gradient(135deg, #07111f 0%, #0e1c33 55%, #07111f 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .hero-image {
+      width: 100%;
+      background: #d8fa80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      overflow: visible;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      line-height: 0;
+    }
+
+    .hero-image img {
+      width: 100%;
+      max-width: 1600px;
+      height: auto;
+      aspect-ratio: 1600 / 400;
+      display: block;
+      object-fit: contain;
+      object-position: center center;
+    }
+
+    .image-warning {
+      display: none;
+      width: 100%;
+      padding: 1rem;
+      line-height: 1.45;
+      text-align: center;
+      color: #05101d;
+      background: #d8fa80;
+      font-weight: 800;
+    }
+
+    header {
+      padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 5vw, 5rem) 2rem;
+      position: relative;
+    }
+
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 2rem;
+      align-items: stretch;
+    }
+
+    .glass {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius);
+    }
+
+    .intro {
+      padding: clamp(1.5rem, 4vw, 3rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .intro::after {
+      content: "";
+      position: absolute;
+      inset: auto -4rem -6rem auto;
+      width: 18rem;
+      height: 18rem;
+      background: radial-gradient(circle, rgba(85,214,255,.25), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: .5rem;
+      align-items: center;
+      padding: .45rem .8rem;
+      border: 1px solid rgba(131,255,189,.35);
+      color: var(--accent2);
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: .86rem;
+      letter-spacing: .02em;
+      background: rgba(131,255,189,.08);
+    }
+
+    h1 {
+      margin: 1.1rem 0 .9rem;
+      font-size: clamp(2.3rem, 7vw, 5.8rem);
+      line-height: .92;
+      letter-spacing: -0.06em;
+    }
+
+    .lead {
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 760px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .85rem;
+      margin-top: 1.6rem;
+    }
+
+    button, .btn {
+      border: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color: #05101d;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      font-weight: 800;
+      padding: .95rem 1.15rem;
+      border-radius: 999px;
+      box-shadow: 0 14px 30px rgba(85,214,255,.18);
+      transition: transform .2s ease, filter .2s ease, background .2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .98rem;
+    }
+
+    button:hover, .btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    button.secondary, .btn.secondary {
+      color: var(--text);
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: none;
+    }
+
+    .facts {
+      padding: 1.25rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .fact {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 22px;
+      padding: 1.1rem;
+    }
+
+    .fact strong {
+      display: block;
+      font-size: 1.6rem;
+      color: var(--accent2);
+      margin-bottom: .25rem;
+    }
+
+    nav {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 clamp(1rem, 5vw, 5rem) 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .nav-inner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .55rem;
+      padding: .75rem;
+      justify-content: center;
+      background: rgba(7,17,31,.76);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+    }
+
+    .nav-inner a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+      padding: .62rem .9rem;
+      border-radius: 999px;
+      transition: background .2s, color .2s;
+    }
+
+    .nav-inner a:hover { background: rgba(255,255,255,.1); color: var(--text); }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1rem clamp(1rem, 5vw, 5rem) 5rem;
+    }
+
+    section { margin-top: 1.25rem; }
+
+    .section-card { padding: clamp(1.25rem, 3vw, 2rem); }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: clamp(1.7rem, 4vw, 3rem);
+      line-height: 1;
+      margin: 0;
+      letter-spacing: -0.04em;
+    }
+
+    .small { color: var(--muted); line-height: 1.5; }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .mini-card {
+      background: rgba(255,255,255,.075);
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: 24px;
+      padding: 1.1rem;
+      min-height: 150px;
+    }
+
+    .mini-card h3 { margin: .2rem 0 .6rem; font-size: 1.2rem; }
+    .mini-card p, .mini-card li { color: var(--muted); line-height: 1.5; }
+    .icon { font-size: 2rem; }
+
+    .timeline {
+      display: grid;
+      gap: .8rem;
+    }
+
+    .session {
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem;
+      border-radius: 24px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      cursor: pointer;
+      transition: transform .2s, background .2s;
+    }
+
+    .session:hover { transform: translateY(-2px); background: rgba(255,255,255,.11); }
+    .badge {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 140px;
+      padding: .6rem 1rem;
+      white-space: nowrap;
+      background: rgba(85,214,255,.12);
+      border: 1px solid rgba(85,214,255,.24);
+      color: var(--accent);
+      border-radius: 999px;
+      font-weight: 900;
+    }
+    .session h3 { margin: 0 0 .25rem; }
+    .session-details { display: none; color: var(--muted); line-height: 1.5; margin-top: .55rem; }
+    .session.open .session-details { display: block; }
+    .chevron { font-size: 1.5rem; color: var(--accent2); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+    .chip {
+      padding: .55rem .8rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .challenge {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .scanner {
+      min-height: 290px;
+      border-radius: 28px;
+      background:
+        linear-gradient(90deg, transparent 0 48%, rgba(85,214,255,.65) 50%, transparent 52% 100%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 1px, transparent 1px 28px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 1px, transparent 1px 28px),
+        radial-gradient(circle at center, rgba(131,255,189,.18), transparent 55%);
+      border: 1px solid rgba(85,214,255,.24);
+      position: relative;
+      overflow: hidden;
+      animation: scan 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes scan {
+      from { background-position: -160px 0, 0 0, 0 0, 0 0; }
+      to { background-position: 160px 0, 0 0, 0 0, 0 0; }
+    }
+
+    .target {
+      position: absolute;
+      border: 2px solid var(--accent2);
+      border-radius: 18px;
+      padding: .4rem .65rem;
+      background: rgba(7,17,31,.7);
+      box-shadow: 0 0 0 6px rgba(131,255,189,.08);
+      font-weight: 900;
+    }
+    .t1 { top: 20%; left: 14%; }
+    .t2 { top: 48%; left: 52%; border-color: var(--warning); }
+    .t3 { bottom: 15%; left: 24%; border-color: var(--accent); }
+
+    .project-tools {
+      display: flex;
+      gap: .7rem;
+      flex-wrap: wrap;
+      margin: .75rem 0 1rem;
+    }
+
+    input {
+      flex: 1 1 260px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 999px;
+      padding: .9rem 1rem;
+      color: var(--text);
+      outline: none;
+      font-size: 1rem;
+    }
+    input::placeholder { color: rgba(191,208,223,.72); }
+
+    .projects {
+      display: grid;
+      grid-template-columns: repeat( auto-fit, minmax(230px, 1fr));
+      gap: .8rem;
+    }
+
+    .project {
+      padding: 1rem;
+      border-radius: 20px;
+      background: rgba(255,255,255,.075);
+      border: 1px solid rgba(255,255,255,.11);
+      line-height: 1.35;
+      color: var(--text);
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+    }
+
+    .project::before { content: "▣"; color: var(--accent2); }
+
+    .quiz {
+      display: grid;
+      gap: .8rem;
+    }
+    .quiz-options { display: grid; gap: .7rem; }
+    .option {
+      text-align: left;
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.13);
+      box-shadow: none;
+      justify-content: flex-start;
+      border-radius: 18px;
+    }
+    .feedback { min-height: 28px; color: var(--accent2); font-weight: 800; }
+
+    footer { color: var(--muted); text-align: center; padding: 2rem 1rem 4rem; }
+
+    @media (max-width: 880px) {
+      .hero, .challenge { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .session { grid-template-columns: 1fr; }
+      .badge { width: fit-content; min-width: 140px; }
+      .nav-inner { border-radius: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-image">
+    <img
+      alt="Capçalera del curs Visió artificial aplicada a la robòtica"
+      src="Visió artificial aplicada a la robòtica.png"
+      onerror="this.style.display='none'; document.querySelector('.image-warning').style.display='block';"
+    />
+    <div class="image-warning">
+      Per veure la capçalera, desa la imatge <strong>Visió artificial aplicada a la robòtica.png</strong> a la mateixa carpeta que aquest fitxer HTML.
+    </div>
+  </div>
+
+  <header>
+    <div class="hero">
+      <div class="intro glass">
+        <span class="eyebrow">👁️ Curs pràctic · Sentry 2 + ESP32</span>
+        <h1>Visió artificial aplicada a la robòtica</h1>
+        <p class="lead">Descobreix com una càmera pot convertir-se en els ulls d’un projecte robòtic: reconèixer colors, línies, AprilTags, cares, targetes i objectes per crear propostes transferibles a l’aula.</p>
+        <div class="actions">
+          <a class="btn" href="#sessions">Explora les sessions</a>
+          <a class="btn secondary" href="#projectes">Veure projectes finals</a>
+        </div>
+      </div>
+      <aside class="facts glass" aria-label="Dades clau del curs">
+        <div class="fact"><strong>30 h</strong><span>18 h de formació, 8 h de treball personal i 4 h presencials</span></div>
+        <div class="fact"><strong>10 sessions</strong><span>9 telemàtiques síncrones i 1 presencial a Olot</span></div>
+        <div class="fact"><strong>Repte final</strong><span>Projecte aplicable a l’aula i compartible amb la comunitat educativa</span></div>
+      </aside>
+    </div>
+  </header>
+
+  <nav aria-label="Navegació principal">
+    <div class="nav-inner">
+      <a href="#que-faras">Què faràs?</a>
+      <a href="#algorismes">Algorismes</a>
+      <a href="#sessions">Sessions</a>
+      <a href="#projectes">Projectes</a>
+      <a href="#quiz">Miniquiz</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="que-faras" class="glass section-card">
+      <div class="section-title">
+        <h2>Què faràs al curs?</h2>
+        <span class="small">Aprenentatge basat en reptes i projectes</span>
+      </div>
+      <div class="grid-3">
+        <article class="mini-card">
+          <div class="icon">📷</div>
+          <h3>Connectaràs la Sentry 2</h3>
+          <p>Treballaràs amb plaques basades en ESP32 com STEAMakers, micro:STEAMakers o ED1.</p>
+        </article>
+        <article class="mini-card">
+          <div class="icon">🧠</div>
+          <h3>Programaràs reconeixement</h3>
+          <p>Aplicaràs algorismes de color, línies, AprilTag, cards, cares, 20Class i aprenentatge.</p>
+        </article>
+        <article class="mini-card">
+          <div class="icon">🤖</div>
+          <h3>Crearàs projectes d’aula</h3>
+          <p>El formador acompanya el procés de pensar, crear i posar en marxa prototips amb visió artificial.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="algorismes" class="glass section-card">
+      <div class="section-title">
+        <h2>Algorismes de visió</h2>
+        <span class="small">Clica un detector per activar-lo</span>
+      </div>
+      <div class="challenge">
+        <div class="scanner" aria-label="Simulador visual de detecció">
+          <span class="target t1">COLOR</span>
+          <span class="target t2">APRILTAG</span>
+          <span class="target t3">FACE</span>
+        </div>
+        <div>
+          <p class="small">La càmera Sentry 2 permet reconèixer elements visuals i fer que el robot prengui decisions. Prova els botons per veure possibles aplicacions.</p>
+          <div class="chips" id="algoChips"></div>
+          <div class="mini-card" id="algoInfo" style="margin-top:1rem; min-height:130px;">
+            <h3>Selecciona un algorisme</h3>
+            <p>Imagina el repte: què hauria de veure el robot per actuar?</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sessions" class="glass section-card">
+      <div class="section-title">
+        <h2>Itinerari de sessions</h2>
+        <span class="small">Clica cada sessió per desplegar-ne el contingut</span>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <section id="projectes" class="glass section-card">
+      <div class="section-title">
+        <h2>Projecte final</h2>
+        <span class="small">Idees presentades per l’alumnat</span>
+      </div>
+      <p class="small">El curs culmina amb un projecte final que ha de rebre valoració positiva per acreditar la formació, juntament amb l’assistència mínima del 80%.</p>
+      <div class="project-tools">
+        <input id="searchProject" placeholder="Cerca un projecte: seguretat, colors, Sentry..." />
+        <button id="randomProject" type="button">Inspira’m</button>
+      </div>
+      <div class="mini-card" id="featuredProject" style="margin-bottom:1rem;">
+        <h3>Projecte destacat</h3>
+        <p>Prem “Inspira’m” per seleccionar una proposta aleatòria.</p>
+      </div>
+      <div class="projects" id="projectList"></div>
+    </section>
+
+    <section id="quiz" class="glass section-card">
+      <div class="section-title">
+        <h2>Miniquiz ràpid</h2>
+        <span class="small">Comprova si el curs encaixa amb tu</span>
+      </div>
+      <div class="quiz">
+        <div class="mini-card">
+          <h3 id="quizQuestion"></h3>
+          <div class="quiz-options" id="quizOptions"></div>
+          <p class="feedback" id="quizFeedback"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Curs “Visió artificial aplicada a la robòtica” · Robòtica, fabricació digital i transferència a l’aula.</p>
+    <hr>
+    <p>Elaborat pel <strong>Toni Hortal</strong> amb l'ajuda de ChatGPT</p>
+  </footer>
+
+  <script>
+    const algorithms = [
+      { name: 'Color', icon: '🎨', use: 'Detectar colors per classificar peces, seguir senyals o activar accions segons l’entorn.' },
+      { name: 'Blocs de color', icon: '🟩', use: 'Localitzar zones de color i convertir-ne la posició en moviment o resposta del robot.' },
+      { name: 'AprilTag', icon: '🏷️', use: 'Reconèixer etiquetes visuals per orientar un robot, identificar espais o validar punts de control.' },
+      { name: 'Línies', icon: '➿', use: 'Seguir camins, detectar trajectòries o construir reptes de navegació autònoma.' },
+      { name: 'Learning', icon: '🧪', use: 'Entrenar la càmera perquè aprengui imatges concretes del teu projecte.' },
+      { name: 'Cards', icon: '🃏', use: 'Treballar amb targetes reconeixibles per crear jocs, ordres o interaccions físiques.' },
+      { name: 'Face', icon: '🙂', use: 'Detectar cares per crear sistemes d’interacció, presència o resposta personalitzada.' },
+      { name: '20Class', icon: '📦', use: 'Reconèixer objectes predefinits i fer prototips ràpids de classificació.' }
+    ];
+
+    const sessions = [
+      { title: 'Presentació i introducció', tag: 'Sessió 1', details: ['Presentació del curs', 'Visió artificial aplicada a la robòtica', 'Introducció a la Sentry 2'] },
+      { title: 'Color i algorismes de visió', tag: 'Sessió 2', details: ['Algorismes de visió', 'Color'] },
+      { title: 'Detecció estructurada', tag: 'Sessió 3', details: ['Blocs de color', 'AprilTag', 'Línies'] },
+      { title: 'Aprenentatge i targetes', tag: 'Sessió 4', details: ['Learning', 'Cards'] },
+      { title: 'Cares i objectes', tag: 'Sessió 5', details: ['Face', '20Class'] },
+      { title: 'Pràctiques i propostes', tag: 'Sessions 6-9', details: ['Pràctiques amb STEAMakersBlocks i MicroBlocks', 'Exemples i propostes de projectes'] },
+      { title: 'Trobada presencial a Olot', tag: 'Sessió 10', details: ['Opció 1: participació a la Fira Robolot amb alumnes presentant un projecte aplicat a l’aula', 'Opció 2: assistència a RobolotCon26 com a professor'] }
+    ];
+
+    const projects = [
+      'Automatitzem la maqueta d\'un muntacàrregues',
+      'Caixa forta amb doble factor de seguretat',
+      'Comunicació de persones discapacitades',
+      'Display mecànic',
+      'El joc de pedra, paper o tisora, amb ED1 i Sentry 2',
+      'Jarvis comença a aprendre a identificar colors',
+      'Passar llista amb la Sentry 2',
+      'Seguretat amb visió artificial',
+      'Sistema de vigilància amb Sentry2',
+      'Treballem amb la botiga de joguines',
+      'Ulls al bosc'
+    ].sort((a, b) => a.localeCompare(b, 'ca'));
+
+    const quiz = [
+      {
+        question: 'Quins coneixements previs cal tenir?',
+        options: ['Programació amb STEAMakersBlocks i MicroBlocks', 'Edició avançada de vídeo', 'Disseny de circuits integrats'],
+        correct: 0
+      },
+      {
+        question: 'Quina càmera es fa servir al curs?',
+        options: ['Sentry 2', 'Kinect', 'Càmera web USB genèrica'],
+        correct: 0
+      },
+      {
+        question: 'Què cal per acreditar el curs?',
+        options: ['80% d’assistència i projecte final valorat positivament', 'Només assistir a la primera sessió', 'Fer un examen teòric de 100 preguntes'],
+        correct: 0
+      }
+    ];
+
+    const algoChips = document.getElementById('algoChips');
+    const algoInfo = document.getElementById('algoInfo');
+    algorithms.forEach((algo) => {
+      const btn = document.createElement('button');
+      btn.className = 'secondary';
+      btn.type = 'button';
+      btn.textContent = `${algo.icon} ${algo.name}`;
+      btn.addEventListener('click', () => {
+        algoInfo.innerHTML = `<h3>${algo.icon} ${algo.name}</h3><p>${algo.use}</p>`;
+      });
+      algoChips.appendChild(btn);
+    });
+
+    const timeline = document.getElementById('timeline');
+    sessions.forEach((session, index) => {
+      const node = document.createElement('article');
+      node.className = 'session';
+      node.innerHTML = `
+        <span class="badge">${session.tag}</span>
+        <div>
+          <h3>${session.title}</h3>
+          <div class="session-details"><ul>${session.details.map(item => `<li>${item}</li>`).join('')}</ul></div>
+        </div>
+        <span class="chevron">+</span>`;
+      node.addEventListener('click', () => {
+        node.classList.toggle('open');
+        node.querySelector('.chevron').textContent = node.classList.contains('open') ? '−' : '+';
+      });
+      if (index === 0) node.classList.add('open');
+      timeline.appendChild(node);
+    });
+
+    const projectList = document.getElementById('projectList');
+    const featuredProject = document.getElementById('featuredProject');
+    const searchProject = document.getElementById('searchProject');
+
+    function renderProjects(filter = '') {
+      const normalized = filter.trim().toLowerCase();
+      const visible = projects.filter(p => p.toLowerCase().includes(normalized));
+      projectList.innerHTML = visible.map(p => `<div class="project">${p}</div>`).join('') || '<p class="small">No hi ha cap projecte amb aquesta cerca.</p>';
+    }
+
+    document.getElementById('randomProject').addEventListener('click', () => {
+      const item = projects[Math.floor(Math.random() * projects.length)];
+      featuredProject.innerHTML = `<h3>Projecte destacat</h3><p><strong>${item}</strong></p><p class="small">Pensa quins sensors, algorismes de visió i actuadors necessitaries per portar-lo a l’aula.</p>`;
+    });
+
+    searchProject.addEventListener('input', (event) => renderProjects(event.target.value));
+    renderProjects();
+
+    let quizIndex = 0;
+    const quizQuestion = document.getElementById('quizQuestion');
+    const quizOptions = document.getElementById('quizOptions');
+    const quizFeedback = document.getElementById('quizFeedback');
+
+    function renderQuiz() {
+      const q = quiz[quizIndex];
+      quizQuestion.textContent = q.question;
+      quizFeedback.textContent = '';
+      quizOptions.innerHTML = '';
+      q.options.forEach((option, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option';
+        btn.textContent = option;
+        btn.addEventListener('click', () => {
+          const ok = idx === q.correct;
+          quizFeedback.textContent = ok ? 'Correcte! Aquest és un punt clau del curs.' : 'Encara no. Torna-ho a provar o revisa la informació del curs.';
+          if (ok) {
+            setTimeout(() => {
+              quizIndex = (quizIndex + 1) % quiz.length;
+              renderQuiz();
+            }, 1200);
+          }
+        });
+        quizOptions.appendChild(btn);
+      });
+    }
+    renderQuiz();
+  </script>
+</body>
+</html>
